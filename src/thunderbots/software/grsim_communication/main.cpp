@@ -71,7 +71,8 @@ public:
         // Slow down due to friction, friction force is in newtons and acts against
         // the direction of robot motion
         double friction_force = FIELD_FRICTION_MU * ROBOT_MASS_KG * GRAVITY_N;
-        double friction_acceleration_mag = friction_force / ROBOT_MASS_KG;
+//        double friction_acceleration_mag = friction_force / ROBOT_MASS_KG;
+        double friction_acceleration_mag = FIELD_FRICTION_MU * curr_velocity.len();
         Vector friction_acceleration_vec = -curr_velocity.norm(friction_acceleration_mag);
 
         // Add both the desired acceleration and the frictional acceleration to the robot
@@ -83,6 +84,7 @@ public:
                 friction_acceleration_vec.len() * dt.getSeconds()
         );
         curr_velocity = curr_velocity + desired_acceleration + friction_acceleration_vec;
+//        curr_velocity = curr_velocity + desired_acceleration;
 
         // Cap velocity
         curr_velocity.norm(
@@ -101,8 +103,8 @@ public:
 private:
 
     double ROBOT_MASS_KG = 2;
-    double FIELD_FRICTION_MU = 0.3;
-    double GRAVITY_N = 0.3;
+    double FIELD_FRICTION_MU = 0.05;
+    double GRAVITY_N = 9.8;
     double MAX_ACCELERATION_SIGMOID_WIDTH = 0.5;
     double MAX_ACCELERATION = ROBOT_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
 
@@ -123,10 +125,13 @@ public:
 
         // Update the previous saved states
         previous_errors.push_front(std::make_pair(error_meters, curr_time));
-
-        return error_meters;
+        return P*error_meters;
     }
+
 private:
+    double P = 0.1;
+    double I = 0.01;
+    double D = 0.01;
 
     boost::circular_buffer<std::pair<double, Timestamp>> previous_errors;
 };
@@ -186,7 +191,7 @@ void worldUpdateCallback(const thunderbots_msgs::World::ConstPtr& msg)
         double acc_mag = robot_controller.update(error_meters, curr_time);
         Vector robot_velocity = robot_plant.getUpdatedVelocity(vec_to_goal.norm(acc_mag), curr_time);
 
-        robot_velocity = robot_velocity.rotate(robot->orientation());
+        robot_velocity = robot_velocity.rotate(-robot->orientation());
 
         auto packet = grsim_backend.createGrSimPacketWithRobotVelocity(
                 0, TeamColour::YELLOW, robot_velocity, AngularVelocity::zero(), 0, false, false);
