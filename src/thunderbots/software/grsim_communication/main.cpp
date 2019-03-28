@@ -124,16 +124,33 @@ public:
     double update(double error_meters, Timestamp curr_time){
 
         // Update the previous saved states
-        previous_errors.push_front(std::make_pair(error_meters, curr_time));
-        return P*error_meters;
+        previous_errors.push_front(std::make_pair(error_meters, curr_time.getSeconds()));
+
+        double integral = 0;
+        for(int i = 0; i < previous_errors.size()-1; i++){
+            integral +=
+                    (previous_errors[i+1].first + previous_errors[i].first)/2 *
+                    (previous_errors[i+1].second - previous_errors[i].second);
+        }
+        if (previous_errors.size() > 1){
+            integral /= (previous_errors.front().second - previous_errors.back().second);
+        }
+
+        double derivative = 0;
+        if (previous_errors.size() > 2){
+            derivative = (previous_errors[0].first - previous_errors[1].first) /
+                    (previous_errors[0].second - previous_errors[1].second);
+        }
+
+        return P*error_meters + I*integral + D*std::abs(derivative);
     }
 
 private:
-    double P = 0.1;
-    double I = 0.01;
-    double D = 0.01;
+    double P = 0.15;
+    double I = 0.12;
+    double D = 0.08;
 
-    boost::circular_buffer<std::pair<double, Timestamp>> previous_errors;
+    boost::circular_buffer<std::pair<double, double>> previous_errors;
 };
 
 
