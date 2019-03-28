@@ -112,6 +112,7 @@ private:
 
 class Controller {
 public:
+    Controller(): previous_errors(20) {}
     /**
      * Calculate the acceleration magnitude for a given robot displacement from a target
      *
@@ -122,7 +123,6 @@ public:
 
         // Update the previous saved states
         previous_errors.push_front(std::make_pair(error_meters, curr_time));
-        previous_errors.pop_back();
 
         return error_meters;
     }
@@ -185,6 +185,8 @@ void worldUpdateCallback(const thunderbots_msgs::World::ConstPtr& msg)
         double error_meters = vec_to_goal.len();
         double acc_mag = robot_controller.update(error_meters, curr_time);
         Vector robot_velocity = robot_plant.getUpdatedVelocity(vec_to_goal.norm(acc_mag), curr_time);
+
+        robot_velocity = robot_velocity.rotate(robot->orientation());
 
         auto packet = grsim_backend.createGrSimPacketWithRobotVelocity(
                 0, TeamColour::YELLOW, robot_velocity, AngularVelocity::zero(), 0, false, false);
