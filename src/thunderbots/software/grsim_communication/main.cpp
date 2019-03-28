@@ -11,6 +11,7 @@
 #include "ai/primitive/primitive_factory.h"
 #include "grsim_communication/grsim_backend.h"
 #include "util/constants.h"
+#include "geom/util.h"
 #include "util/logger/init.h"
 #include "util/parameter/dynamic_parameter_utils.h"
 #include "util/parameter/dynamic_parameters.h"
@@ -114,7 +115,7 @@ private:
 
 class Controller {
 public:
-    Controller(): previous_errors(20) {}
+    Controller(): previous_errors(100000000) {}
     /**
      * Calculate the acceleration magnitude for a given robot displacement from a target
      *
@@ -122,6 +123,13 @@ public:
      * @return  The magnitude of the desired acceleration in m/s^2
      */
     double update(double error_meters, Timestamp curr_time){
+        P = Util::DynamicParameters::PID::P.value();
+        I = Util::DynamicParameters::PID::I.value();
+        D = Util::DynamicParameters::PID::D.value();
+
+        if(Util::DynamicParameters::PID::reset_robot.value()) {
+            previous_errors.clear();
+        }
 
         // Update the previous saved states
         previous_errors.push_front(std::make_pair(error_meters, curr_time.getSeconds()));
@@ -130,11 +138,11 @@ public:
         for(int i = 0; i < previous_errors.size()-1; i++){
             integral +=
                     (previous_errors[i+1].first + previous_errors[i].first)/2 *
-                    (previous_errors[i+1].second - previous_errors[i].second);
+                    (previous_errors[i].second - previous_errors[i+1].second);
         }
-        if (previous_errors.size() > 1){
-            integral /= (previous_errors.front().second - previous_errors.back().second);
-        }
+//        if (previous_errors.size() > 1){
+//            integral /= (previous_errors.front().second - previous_errors.back().second);
+//        }
 
         double derivative = 0;
         if (previous_errors.size() > 2){
@@ -142,13 +150,15 @@ public:
                     (previous_errors[0].second - previous_errors[1].second);
         }
 
-        return P*error_meters + I*integral + D*std::abs(derivative);
+        std::cout << integral << std::endl;
+
+        return P*error_meters + I*integral + D*derivative;
     }
 
 private:
-    double P = 0.15;
-    double I = 0.12;
-    double D = 0.08;
+    double P = 0; // 0.15
+    double I = 0; // 0.12
+    double D = 0; // 0,08
 
     boost::circular_buffer<std::pair<double, double>> previous_errors;
 };
@@ -173,6 +183,7 @@ namespace
 
     // The goal destination for the robot
     Point desired_position({0,0});
+    Point starting_position({0, 0});
 
     // The last timestamp from a robot update that we care about
     Timestamp last_robot_update_time = Timestamp::fromSeconds(0);
@@ -188,7 +199,7 @@ void primitiveUpdateCallback(const thunderbots_msgs::PrimitiveArray::ConstPtr& m
         primitives.emplace_back(AI::Primitive::createPrimitiveFromROSMessage(prim_msg));
     }
 
-    grsim_backend.sendPrimitives(primitives, world.friendlyTeam(), world.ball());
+//    grsim_backend.sendPrimitives(primitives, world.friendlyTeam(), world.ball());
 }
 
 void worldUpdateCallback(const thunderbots_msgs::World::ConstPtr& msg)
@@ -199,14 +210,21 @@ void worldUpdateCallback(const thunderbots_msgs::World::ConstPtr& msg)
 
     auto robot = world.friendlyTeam().getRobotById(0);
     if (robot && robot->lastUpdateTimestamp() > last_robot_update_time){
+        if(Util::DynamicParameters::PID::reset_robot.value()) {
+            grsim_backend.setRobot(0, true, Point(-5, 0), Angle::zero());
+            starting_position = robot->position();
+        }
+
         last_robot_update_time = robot->lastUpdateTimestamp();
-
         Timestamp curr_time = robot->lastUpdateTimestamp();
-        Vector vec_to_goal = desired_position - robot->position();
-
-        double error_meters = vec_to_goal.len();
+        double error_meters = (starting_position - desired_position).len() - (starting_position - robot->position()).len();
+        Vector acc_dir = desired_position - starting_position;
         double acc_mag = robot_controller.update(error_meters, curr_time);
-        Vector robot_velocity = robot_plant.getUpdatedVelocity(vec_to_goal.norm(acc_mag), curr_time);
+        Vector new_acc_dir = acc_dir.norm(std::fabs(acc_mag));
+        if(acc_mag < 0.0) {
+            new_acc_dir = new_acc_dir.rotate(Angle::half());
+        }
+        Vector robot_velocity = robot_plant.getUpdatedVelocity(new_acc_dir, curr_time);
 
         robot_velocity = robot_velocity.rotate(-robot->orientation());
 

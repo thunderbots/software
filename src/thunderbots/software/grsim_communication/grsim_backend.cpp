@@ -172,6 +172,20 @@ grSim_Packet GrSimBackend::createGrSimReplacementWithBallState(Point destination
     return (packet);
 }
 
+void GrSimBackend::setRobot(int id, bool yellow, Point destination, Angle orientation) {
+    grSim_Packet packet;
+
+    grSim_RobotReplacement * replacement = packet.mutable_replacement()->add_robots();
+    replacement->set_x(destination.x());
+    replacement->set_y(destination.y());
+    replacement->set_dir(orientation.toRadians());
+    replacement->set_id(id);
+    replacement->set_yellowteam(yellow);
+    replacement->set_turnon(true);
+
+    sendGrSimPacket(packet);
+}
+
 void GrSimBackend::sendGrSimPacket(const grSim_Packet& packet)
 {
     boost::system::error_code err;

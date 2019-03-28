@@ -1,0 +1,27 @@
+PID:
+  P:
+    min: -10000
+    max: 10000
+    default: 0
+    type: "double"
+    description: "P"
+  I:
+    min: -10000
+    max: 10000
+    default: 0
+    type: "double"
+    description: "I"
+  D:
+    min: -10000
+    max: 10000
+    default: 0
+    type: "double"
+    description: "D"
+  reset_robot:
+    default: false
+    type: "bool"
+    description: "reset robot"
+  log:
+    default: false
+    type: "bool"
+    description: "log enable"

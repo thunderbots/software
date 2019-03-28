@@ -88,6 +88,7 @@ class GrSimBackend
      */
 
     grSim_Packet createGrSimReplacementWithBallState(Point destination, Vector velocity);
+    void setRobot(int id, bool yellow, Point destination, Angle orientation);
 
     /**
      * Sends a grSim packet to grSim via UDP
