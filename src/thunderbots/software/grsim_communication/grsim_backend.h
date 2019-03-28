@@ -89,13 +89,14 @@ class GrSimBackend
 
     grSim_Packet createGrSimReplacementWithBallState(Point destination, Vector velocity);
 
-   private:
     /**
      * Sends a grSim packet to grSim via UDP
      *
      * @param packet the grSim packet to send
      */
     void sendGrSimPacket(const grSim_Packet& packet);
+
+   private:
 
     // Variables for networking
     std::string network_address;
