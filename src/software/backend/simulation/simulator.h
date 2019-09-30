@@ -9,7 +9,7 @@
 
 class Simulator {
 public:
-    Simulator(bool thread_started);
+    Simulator();
 
     // Delete the copy and assignment operators because this class really shouldn't
     // need them and we don't want to risk doing anything nasty with the internal
@@ -18,12 +18,11 @@ public:
     Simulator(const Simulator&)            = delete;
 
     ~Simulator();
-    void start(std::function<void(Ball)> world_update_callback);
+    void start(std::function<void(Ball)> ball_update_callback);
     void setBall(const Ball& ball);
 
 private:
     void simulation_loop();
-
 
     // The mutex for the in_destructor flag
     Duration time_step;
@@ -35,7 +34,7 @@ private:
     int position_iterations;
     std::optional<PhysicsBall> physics_ball;
     std::thread simulation_thread;
-    std::function<void(Ball)> world_update_callback;
+//    std::function<void(Ball)> ball_update_callback;
     std::mutex world_mutex;
 };
 
