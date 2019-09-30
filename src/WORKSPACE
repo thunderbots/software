@@ -83,3 +83,11 @@ new_local_repository(
     build_file = "@bazel_rules_qt//:qt.BUILD",
     path = "/usr/include/x86_64-linux-gnu/qt5/",
 )
+
+new_git_repository(
+    name = "reactphysics",
+    build_file = "@//external:reactphysics.BUILD",
+    commit = "f9fa2a227c484e7755eaad163525e0ebb42a61d1",
+    remote = "https://github.com/DanielChappuis/reactphysics3d.git",
+    shallow_since = "1561963347 +0200",
+)
