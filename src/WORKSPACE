@@ -85,14 +85,6 @@ new_local_repository(
 )
 
 new_git_repository(
-    name = "reactphysics",
-    build_file = "@//external:reactphysics.BUILD",
-    commit = "f9fa2a227c484e7755eaad163525e0ebb42a61d1",
-    remote = "https://github.com/DanielChappuis/reactphysics3d.git",
-    shallow_since = "1561963347 +0200",
-)
-
-new_git_repository(
     name = "box2d",
     build_file = "@//external:box2d.BUILD",
     commit = "ef96a4f17f1c5527d20993b586b400c2617d6ae1",
