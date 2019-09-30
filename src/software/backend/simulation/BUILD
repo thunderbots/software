@@ -15,6 +15,9 @@ cc_library(
 cc_binary(
     name = "simulator_test",
     srcs = ["simulator_test.cpp"],
+    #    copts = [
+    #        "-lpthread",
+    #    ],
     deps = [
         ":simulator",
         "//software/ai/world:ball",

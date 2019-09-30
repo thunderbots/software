@@ -1,6 +1,8 @@
 #include <iostream>
 #include "software/backend/simulation/simulator.h"
 #include "software/ai/world/ball.h"
+#include <thread>
+#include <pthread.h>
 
 int main(int argc, char **argv)
 {

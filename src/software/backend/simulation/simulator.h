@@ -6,6 +6,8 @@
 #include "software/util/time/duration.h"
 #include <optional>
 #include <mutex>
+#include <thread>
+#include <pthread.h>
 
 class Simulator {
 public:
