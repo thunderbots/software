@@ -12,12 +12,24 @@ cc_library(
     ],
 )
 
+cc_test(
+    name = "ball_test",
+    srcs = ["physics_ball_test.cpp"],
+    deps = [
+        ":ball",
+        "//software/ai/world:ball",
+        "@box2d",
+        "@gtest//:gtest_main",
+    ],
+)
+
+# TODO: remove
 cc_binary(
     name = "simulator_test",
     srcs = ["simulator_test.cpp"],
-    #    copts = [
-    #        "-lpthread",
-    #    ],
+    linkopts = [
+        "-pthread",
+    ],
     deps = [
         ":simulator",
         "//software/ai/world:ball",

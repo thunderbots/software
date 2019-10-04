@@ -23,12 +23,9 @@ Simulator::~Simulator() {
 
 void Simulator::start(std::function<void(Ball)> ball_update_callback) {
     thread_started = true;
-    simulation_thread = std::thread([]() {
-        std::cout << "in thread" << std::endl;
+    simulation_thread = std::thread([this]() {
+        return simulation_loop();
     });
-//    simulation_thread = std::thread([this]() {
-//        return simulation_loop();
-//    });
 }
 
 void Simulator::setBall(const Ball &ball) {
