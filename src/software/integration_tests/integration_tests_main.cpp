@@ -72,23 +72,27 @@ int main(int argc, char **argv)
 
     auto params = parseCommandLineArgs(argc, argv);
 
-
     if(params.valid) {
-        auto ai = std::make_shared<AIWrapper>();
         auto backend = std::make_shared<SimulatorBackend>();
+        auto ai = std::make_shared<AIWrapper>();
 
         backend->Subject<World>::registerObserver(ai);
         ai->Subject<ConstPrimitiveVectorPtr>::registerObserver(backend);
+        std::shared_ptr<VisualizerWrapper> visualizer;
+
+        if(!params.headless) {
+            visualizer = std::make_shared<VisualizerWrapper>(argc, argv);
+
+            backend->Subject<World>::registerObserver(visualizer);
+            ai->Subject<AIDrawFunction>::registerObserver(visualizer);
+            ai->Subject<PlayInfo>::registerObserver(visualizer);
+            backend->Subject<RobotStatus>::registerObserver(visualizer);
+        }
+
+        // All observers must be connected before starting
         backend->start();
 
         if(!params.headless) {
-            auto visualizer = std::make_shared<VisualizerWrapper>(argc, argv);
-
-            backend->Subject<World>::registerObserver(visualizer);
-            ai->Subject<AIDrawFunction>::registerObserver(visualizer)
-            ai->Subject<PlayInfo>::registerObserver(visualizer);
-            backend->Subject<RobotStatus>::registerObserver(visualizer);
-
             // This blocks forever without using the CPU
             // Wait for the visualizer to shut down before shutting
             // down the rest of the system

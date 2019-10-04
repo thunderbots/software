@@ -3,6 +3,9 @@ package(default_visibility = ["//visibility:public"])
 cc_binary(
     name = "integration_tests",
     srcs = ["integration_tests_main.cpp"],
+    linkopts = [
+        "-pthread",
+    ],
     deps = [
         "//software:typedefs",
         "//software/ai:ai_wrapper",

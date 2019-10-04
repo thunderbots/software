@@ -30,6 +30,8 @@ void PhysicsBall::initializeBall() {
 
     ball_fixture_def.shape = &ball_shape;
     ball_fixture_def.density = 1.0;
+    ball_fixture_def.restitution = 1.0;
+    ball_fixture_def.friction = 1.0;
 
     ball_body->CreateFixture(&ball_fixture_def);
 }

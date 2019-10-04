@@ -1,24 +1,24 @@
 #include "software/backend/simulation/physics_field.h"
-#include "../../../../../../.cache/bazel/_bazel_mathew/84b6638ae5fbabc0fbab9d81e91fe5fc/execroot/__main__/external/box2d/Box2D/Box2D.h"
 
-PhysicsField::PhysicsField(std::shared_ptr<b2World> world, const Field &field) {
-    pos_y_field_boundary_shape.SetAsBox()
-    pos_y_field_boundary_body_def.type = b2_staticBody;
-    pos_y_field_boundary_body_def.position.Set(0, field.width() / 2.0);
-    pos_y_field_boundary_body_def.angle(0.0);
+PhysicsField::PhysicsField(std::shared_ptr<b2World> world, const Field &field) : field(field) {
+    field_boundary_body_def.type = b2_staticBody;
+    field_boundary_body_def.position.Set(0, 0);
+    field_boundary_body = world->CreateBody(&field_boundary_body_def);
 
-    neg_y_field_boundary_body_def.type = b2_staticBody;
-    neg_y_field_boundary_body_def.position.Set(0, -field.width() / 2.0);
-    neg_y_field_boundary_body_def.angle(0.0);
+    // TODO: Use a real field rectangle to set these values
+    b2Vec2 vs[4];
+    vs[0].Set(-field.totalLength() / 2, field.totalWidth() / 2);
+    vs[1].Set(field.totalLength() / 2, field.totalWidth() / 2);
+    vs[2].Set(field.totalLength() / 2, -field.totalWidth() / 2);
+    vs[3].Set(-field.totalLength() / 2, -field.totalWidth() / 2);
+    field_boundary_shape.CreateLoop(vs, 4);
+    field_boundary_fixture_def.shape = &field_boundary_shape;
+    field_boundary_fixture_def.restitution = 1.0;
+    field_boundary_fixture_def.friction = 1.0;
+    field_boundary_body->CreateFixture(&field_boundary_fixture_def);
+}
 
-    pos_x_field_boundary_body_def.type = b2_staticBody;
-    pos_x_field_boundary_body_def.position.Set(field.length() / 2.0, 0);
-    // TODO: radians?
-    pos_x_field_boundary_body_def.angle(90);
-
-    neg_x_field_boundary_body_def.type = b2_staticBody;
-    neg_x_field_boundary_body_def.position.Set(field.length() / 2.0, 0);
-    // TODO: radians?
-    neg_x_field_boundary_body_def.angle(90);
+Field PhysicsField::getField() const {
+    return field;
 }
 

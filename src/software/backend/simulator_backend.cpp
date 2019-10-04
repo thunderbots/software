@@ -15,7 +15,15 @@ void SimulatorBackend::onValueReceived(ConstPrimitiveVectorPtr primitives)
 }
 
 void SimulatorBackend::start() {
-    auto f = [](Ball b) {};
+    auto f = [this](World world) {
+        Subject<World>::sendValueToObservers(world);
+    };
+    Ball b(Point(0, 0), Vector(0.7, -0.2), Timestamp::fromSeconds(0));
+    simulator.setBall(b);
+
+    Field field = Field(9.0, 6.0, 1.0, 2.0, 1.0, 0.3, 0.5, Timestamp::fromSeconds(0));
+    simulator.setField(field);
+
     simulator.start(f);
 }
 

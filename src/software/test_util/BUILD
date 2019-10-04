@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "test_util",
-    testonly = True,
+    #    testonly = True,
     srcs = ["test_util.cpp"],
     hdrs = ["test_util.h"],
     deps = ["//software/ai/world"],

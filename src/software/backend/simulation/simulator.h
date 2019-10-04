@@ -2,7 +2,10 @@
 
 #include <thread>
 #include "software/ai/world/ball.h"
+#include "software/ai/world/world.h"
+#include "software/ai/world/field.h"
 #include "software/backend/simulation/physics_ball.h"
+#include "software/backend/simulation/physics_field.h"
 #include "software/util/time/duration.h"
 #include <optional>
 #include <mutex>
@@ -20,23 +23,27 @@ public:
     Simulator(const Simulator&)            = delete;
 
     ~Simulator();
-    void start(std::function<void(Ball)> ball_update_callback);
+    void start(std::function<void(World)> world_update_callback);
     void setBall(const Ball& ball);
+    void setField(const Field& field);
 
 private:
-    void simulation_loop();
+    void simulation_loop(std::function<void(World)> world_update_callback);
 
     // The mutex for the in_destructor flag
     Duration time_step;
     std::mutex in_destructor_mutex;
     bool in_destructor;
     bool thread_started;
+
     std::shared_ptr<b2World> world;
+    std::mutex world_mutex;
     int velocity_iterations;
     int position_iterations;
+
     std::optional<PhysicsBall> physics_ball;
+    std::optional<PhysicsField> physics_field;
+
     std::thread simulation_thread;
-//    std::function<void(Ball)> ball_update_callback;
-    std::mutex world_mutex;
 };
 

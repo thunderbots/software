@@ -23,6 +23,18 @@ cc_test(
     ],
 )
 
+cc_library(
+    name = "field",
+    srcs = ["physics_field.cpp"],
+    hdrs = ["physics_field.h"],
+    deps = [
+        "//shared:constants",
+        "//software/ai/world:field",
+        "//software/geom",
+        "@box2d",
+    ],
+)
+
 # TODO: remove
 cc_binary(
     name = "simulator_test",
@@ -42,6 +54,8 @@ cc_library(
     hdrs = ["simulator.h"],
     deps = [
         ":ball",
+        ":field",
+        "//software/ai/world",
         "//software/ai/world:ball",
         "//software/util/time:duration",
         "@box2d",

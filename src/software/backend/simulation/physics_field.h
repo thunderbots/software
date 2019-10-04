@@ -1,10 +1,7 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-//#include "software/geom/point.h"
 #include "software/ai/world/field.h"
 #include "Box2D/Box2D.h"
-#include "../../../../../../.cache/bazel/_bazel_mathew/84b6638ae5fbabc0fbab9d81e91fe5fc/execroot/__main__/external/box2d/Box2D/Collision/Shapes/b2PolygonShape.h"
 
 class PhysicsField {
 public:
@@ -14,18 +11,23 @@ public:
 
     Field getField() const;
 private:
-    // The 4 boundary walls that surround the field
-    b2BodyDef pos_y_field_boundary_body_def;
-    b2PolygonShape pos_y_field_boundary_shape;
-    b2BodyDef neg_y_field_boundary_body_def;
-    b2PolygonShape neg_y_field_boundary_shape;
-    b2BodyDef pos_x_field_boundary_body_def;
-    b2PolygonShape pos_x_field_boundary_shape;
-    b2BodyDef neg_x_field_boundary_body_def;
-    b2PolygonShape neg_x_field_boundary_shape;
+    // This body represents the 4 boundary walls around the edge of the field
+    b2BodyDef field_boundary_body_def;
+    b2ChainShape field_boundary_shape;
+    b2Body* field_boundary_body;
+    b2FixtureDef field_boundary_fixture_def;
 
-//    b2CircleShape ball_shape;
-//    b2BodyDef ball_body_def;
-//    b2FixtureDef ball_fixture_def;
-//    b2Body* ball_body;
+    // This body represents the enemy net
+    b2BodyDef enemy_net_body_def;
+    b2ChainShape enemy_net_shape;
+    b2Body* enemy_net_body;
+    b2FixtureDef enemy_net_fixture_def;
+
+    // This body represents the friendly net
+    b2BodyDef friendly_net_body_def;
+    b2ChainShape friendly_net_shape;
+    b2Body* friendly_net_body;
+    b2FixtureDef friendly_net_fixture_def;
+
+    Field field;
 };
